@@ -185,7 +185,6 @@ public class RedStoneListener implements Listener {
                         return;
                     }
 
-
                     if(pointer.length() == 0){
                         //a pointer has not been added, put it at index 0
                         //splitPattern.fill(" ");
