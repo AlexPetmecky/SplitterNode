@@ -226,6 +226,7 @@ public class RedStoneListener implements Listener {
                         index++;
                     }else{
                         //error-> student messed up pattern
+                        System.out.println("CONFIRM UPDATES ARE HAPPENING");
                         System.out.println("ERROR; pattern messed up");
                         return;
                     }
