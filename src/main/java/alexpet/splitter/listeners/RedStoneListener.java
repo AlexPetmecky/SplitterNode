@@ -219,12 +219,17 @@ public class RedStoneListener implements Listener {
                         pathDirection="left";
                         splitPointer = HelperFunctions.increasePointer(splitPointer,index);
                         index++;
+                    }else if (currLetter.equalsIgnoreCase("c")){
+                        pathDirection="center";
+                        splitPointer = HelperFunctions.increasePointer(splitPointer,index);
+                        index++;
                     }else{
                         //error-> student messed up pattern
                         System.out.println("ERROR; pattern messed up");
                         return;
                     }
 
+                    //updates the sign after moving the pointer
                     System.out.println("JOIN: "+String.join("",splitPointer));
                     System.out.println("Tostring: "+splitPointer.toString());
                     mysign.setLine(2,String.join("",splitPointer));
@@ -235,26 +240,30 @@ public class RedStoneListener implements Listener {
                     List<Block> blockByTarget= HelperFunctions.getNearbyBlocks(targetLoc,1);
                     System.out.println("LENGTH OF blocksByTarget: "+blockByTarget.size());
 
+                    //setting up variables to check chest sides
                     boolean foundLeft;
                     boolean foundRight;
                     boolean splitDestFound=false;
                     System.out.println("LOCATION OF SIGN: "+signLoc);
                     Location rightDest = null;
                     Location leftDest = null;
+                    Location centerDest = null;
                     System.out.println("FACE = "+face);
 
                     Location rightSide;
                     Location leftSide;
+                    Location center;
 
                     //i dont think i can add/subtract; i have to get individually and do it, i think i am changing the signlLoc variable
                     if(face.equalsIgnoreCase("north")){
                         rightSide = new Location(signLoc.getWorld(), signLoc.getX()-1,signLoc.getY()-1,signLoc.getZ()+1);
                         leftSide = new Location(signLoc.getWorld(), signLoc.getX()+1,signLoc.getY()-1,signLoc.getZ()+1);
-
+                        center = new Location(signLoc.getWorld(), signLoc.getX(),signLoc.getY()-1,signLoc.getZ());
                         if((rightSide.getBlock().getType() == Material.CHEST || rightSide.getBlock().getType() ==Material.DISPENSER) && (leftSide.getBlock().getType() == Material.CHEST || leftSide.getBlock().getType() ==Material.DISPENSER) ){
                             splitDestFound = true;
                             rightDest = rightSide;
                             leftDest = leftSide;
+                            centerDest=center;
                         }
                     }else if(face.equalsIgnoreCase("south")){
                         System.out.println("FACE == SOUTH");
@@ -262,27 +271,36 @@ public class RedStoneListener implements Listener {
                         leftSide = new Location(signLoc.getWorld(), signLoc.getX()-1,signLoc.getY()-1,signLoc.getZ()-1);
                         System.out.println("rightSide coords: "+rightSide);
                         System.out.println("leftSide coords: "+leftSide);
+
+                        center = new Location(signLoc.getWorld(),signLoc.getX(),signLoc.getY()-1,signLoc.getZ());//x,y-1,x
+
                         if((rightSide.getBlock().getType() == Material.CHEST || rightSide.getBlock().getType() ==Material.DISPENSER) && (leftSide.getBlock().getType() == Material.CHEST || leftSide.getBlock().getType() ==Material.DISPENSER) ){
                             System.out.println("Blocks found");
                             splitDestFound = true;
                             rightDest = rightSide;
                             leftDest = leftSide;
+                            centerDest = center;
                         }
                     }else if(face.equalsIgnoreCase("east")){
                         rightSide = new Location(signLoc.getWorld(), signLoc.getX()-1,signLoc.getY()-1,signLoc.getZ()-1);
                         leftSide = new Location(signLoc.getWorld(), signLoc.getX()-1,signLoc.getY()-1,signLoc.getZ()+1);
+                        center = new Location(signLoc.getWorld(),signLoc.getX(),signLoc.getY()-1,signLoc.getZ());
+
                         if((rightSide.getBlock().getType() == Material.CHEST || rightSide.getBlock().getType() ==Material.DISPENSER) && (leftSide.getBlock().getType() == Material.CHEST || leftSide.getBlock().getType() ==Material.DISPENSER) ){
                             splitDestFound = true;
                             rightDest = rightSide;
                             leftDest = leftSide;
+                            centerDest=center;
                         }
                     }else if(face.equalsIgnoreCase("west")){
                         rightSide = new Location(signLoc.getWorld(), signLoc.getX()+1,signLoc.getY()-1,signLoc.getZ()+1);
                         leftSide = new Location(signLoc.getWorld(), signLoc.getX()+1,signLoc.getY()-1,signLoc.getZ()-1);
+                        center = new Location(signLoc.getWorld(), signLoc.getX(),signLoc.getY()-1,signLoc.getZ());
                         if((rightSide.getBlock().getType() == Material.CHEST || rightSide.getBlock().getType() ==Material.DISPENSER) && (leftSide.getBlock().getType() == Material.CHEST || leftSide.getBlock().getType() ==Material.DISPENSER) ){
                             splitDestFound = true;
                             rightDest = rightSide;
                             leftDest = leftSide;
+                            centerDest=center;
                         }
                     }else{
                         System.out.println("ERROR no face direction given");
@@ -307,6 +325,9 @@ public class RedStoneListener implements Listener {
                     Chest rightChest=null;
                     //BlockState state=null;
 
+                    Dispenser centerDis=null;
+                    Chest centerChest=null;
+
 
                     System.out.println("HERE 1");
                     if(leftDest.getBlock().getType() == Material.DISPENSER){
@@ -330,6 +351,19 @@ public class RedStoneListener implements Listener {
                         //rightInv = rightChest.getSnapshotInventory();
                         //state=rightDest.getBlock().getState();
                     }
+
+                    if(centerDest.getBlock().getType()==Material.DISPENSER){
+                        centerDis = (Dispenser) centerDest.getBlock().getState();
+                    }else{
+                        //its not checked if its a chest above so here do a second check to ensure its a chest
+                        if(centerDest.getBlock().getType()==Material.CHEST){
+                            centerChest = (Chest) centerDest.getBlock().getState();
+                        }else{
+                            //throw some error
+                            return;
+                        }
+                    }
+
                     System.out.println("HERE 3");
 
                     System.out.println("PATHDIRECTION: "+pathDirection);
@@ -341,7 +375,17 @@ public class RedStoneListener implements Listener {
                             leftChest.getSnapshotInventory().addItem(passedItem);
                             leftChest.update();
                         }
+                    }else if(pathDirection.equals("center")){
+                        if(centerDis !=null){
+                            centerDis.getSnapshotInventory().addItem(passedItem);
+                            centerDis.update();
+                        }else{
+                            //using the chest instead of the dispenser
+                            centerChest.getSnapshotInventory().addItem(passedItem);
+                            centerChest.update();
+                        }
                     }else{
+                        //move the item to the right
                         if(rightDis != null){
                             rightDis.getSnapshotInventory().addItem(passedItem);
                             rightDis.update();
