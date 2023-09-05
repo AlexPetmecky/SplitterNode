@@ -220,6 +220,7 @@ public class RedStoneListener implements Listener {
                         splitPointer = HelperFunctions.increasePointer(splitPointer,index);
                         index++;
                     }else if (currLetter.equalsIgnoreCase("c")){
+                        system.out.println("C FOUND: CENTER BEING CALLED");
                         pathDirection="center";
                         splitPointer = HelperFunctions.increasePointer(splitPointer,index);
                         index++;
